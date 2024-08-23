@@ -75,8 +75,7 @@ pub trait CommonModule: crate::storage::StorageModule + crate::events::EventsMod
             !self.blockchain().is_smart_contract(to),
             "Only user accounts are allowed to mint"
         );
-        let has_stage = ticket_stage_opt.is_some();
-        let ticket_stage = ticket_stage_opt.unwrap();
+        let has_stage: bool = ticket_stage_opt.is_some();
         let mut nft_output_payments = ManagedVec::new();
         let map_nonce = self.next_nonce(&event.token);
         let mut nonce = map_nonce.get();
@@ -112,10 +111,6 @@ pub trait CommonModule: crate::storage::StorageModule + crate::events::EventsMod
             .update(|counts| *counts += nfts_to_send as u32);
         self.buys_per_ticket_type(to, &event.id, &ticket_type.id)
             .update(|counts| *counts += nfts_to_send as u32);
-        if has_stage {
-            self.buys_per_ticket_stage(to, &event.id, &ticket_type.id, &ticket_stage.id)
-                .update(|counts| *counts += nfts_to_send as u32);
-        }
 
         // set the last nonce of the minted NFT
         map_nonce.set(nonce);
@@ -124,25 +119,27 @@ pub trait CommonModule: crate::storage::StorageModule + crate::events::EventsMod
 
         event.mint_count += nfts_to_send as u32;
         ticket_type.mint_count += nfts_to_send as u32;
-        if has_stage {
-            ticket_stage.mint_count += nfts_to_send as u32;
-        }
 
         if has_stage {
+            let ticket_stage = ticket_stage_opt.unwrap();
+            self.buys_per_ticket_stage(to, &event.id, &ticket_type.id, &ticket_stage.id)
+                .update(|counts| *counts += nfts_to_send as u32);
+
+            ticket_stage.mint_count += nfts_to_send as u32;
+
             self.emit_stage_mint(
                 &ticket_type,
                 &ticket_stage,
                 &event,
                 event.mint_count == event.max_capacity,
             );
+
+            self.ticket_stages(&event.id, &ticket_type.id)
+                .insert(ticket_stage.id.clone(), ticket_stage.clone());
         } else {
             self.emit_type_mint(&ticket_type, &event, event.mint_count == event.max_capacity);
         }
 
-        if has_stage {
-            self.ticket_stages(&event.id, &ticket_type.id)
-                .insert(ticket_stage.id.clone(), ticket_stage.clone());
-        }
         self.ticket_type_by_id(&event.id, &ticket_type.id)
             .set(ticket_type);
         self.event_by_id(&event.id).set(event);
@@ -357,12 +354,14 @@ pub trait CommonModule: crate::storage::StorageModule + crate::events::EventsMod
         count: usize,
     ) {
         require!(
-            ticket_type.mint_limit == 0 || (ticket_type.mint_limit >= ticket_type.mint_count + count as u32),
+            ticket_type.mint_limit == 0
+                || (ticket_type.mint_limit >= ticket_type.mint_count + count as u32),
             "The ticket type capacity is sold out!"
         );
 
         require!(
-            ticket_stage.mint_limit == 0 || (ticket_stage.mint_limit >= ticket_stage.mint_count + count as u32),
+            ticket_stage.mint_limit == 0
+                || (ticket_stage.mint_limit >= ticket_stage.mint_count + count as u32),
             "The ticket stage capacity is sold out!"
         );
 
