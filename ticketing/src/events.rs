@@ -93,6 +93,8 @@ pub trait EventsModule: crate::storage::StorageModule {
         #[indexed] timestamp: u64,
         #[indexed] epoch: u64,
         #[indexed] external_id: &ManagedBuffer,
+        #[indexed] event: &Event<Self::Api>,
+        #[indexed] ticket_type: &TicketType<Self::Api>,
     );
 
     fn emit_buy(
@@ -103,6 +105,8 @@ pub trait EventsModule: crate::storage::StorageModule {
         price: &BigUint,
         token_identifier: &TokenIdentifier,
         external_id: &ManagedBuffer,
+        event: &Event<Self::Api>,
+        ticket_type: &TicketType<Self::Api>,
     ) {
         let epoch = self.blockchain().get_block_epoch();
         self.emit_buy_event(
@@ -114,6 +118,8 @@ pub trait EventsModule: crate::storage::StorageModule {
             self.blockchain().get_block_timestamp(),
             epoch,
             external_id,
+            event,
+            ticket_type,
         );
     }
 }

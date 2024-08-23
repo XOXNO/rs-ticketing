@@ -85,6 +85,8 @@ pub trait Ticketing:
             &price_per_nft,
             &event.token,
             &ManagedBuffer::new(),
+            &event,
+            &ticket_type,
         );
         self.distribute_income(payment);
         payments
@@ -113,6 +115,8 @@ pub trait Ticketing:
                 &BigUint::zero(),
                 &event.token,
                 &ManagedBuffer::new(),
+                &event,
+                &ticket_type,
             );
 
             all_payments.append_vec(payments);
@@ -163,6 +167,8 @@ pub trait Ticketing:
             &BigUint::zero(),
             &event.token,
             external_id,
+            &event,
+            &ticket_type,
         );
         payments
     }
