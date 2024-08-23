@@ -357,17 +357,17 @@ pub trait CommonModule: crate::storage::StorageModule + crate::events::EventsMod
         count: usize,
     ) {
         require!(
-            ticket_type.mint_limit >= ticket_type.mint_count + count as u32,
+            ticket_type.mint_limit == 0 || (ticket_type.mint_limit >= ticket_type.mint_count + count as u32),
             "The ticket type capacity is sold out!"
         );
 
         require!(
-            ticket_stage.mint_limit >= ticket_stage.mint_count + count as u32,
+            ticket_stage.mint_limit == 0 || (ticket_stage.mint_limit >= ticket_stage.mint_count + count as u32),
             "The ticket stage capacity is sold out!"
         );
 
         require!(
-            event.max_capacity >= event.mint_count + count as u32,
+            event.max_capacity == 0 || (event.max_capacity >= event.mint_count + count as u32),
             "The event capacity would be over the maximum!"
         );
     }
@@ -379,12 +379,13 @@ pub trait CommonModule: crate::storage::StorageModule + crate::events::EventsMod
         count: usize,
     ) {
         require!(
-            ticket_type.mint_limit >= ticket_type.mint_count + count as u32,
+            ticket_type.mint_limit == 0
+                || (ticket_type.mint_limit >= ticket_type.mint_count + count as u32),
             "The ticket type capacity is sold out!"
         );
 
         require!(
-            event.max_capacity >= event.mint_count + count as u32,
+            event.max_capacity == 0 || (event.max_capacity >= event.mint_count + count as u32),
             "The event capacity would be over the maximum!"
         );
     }
