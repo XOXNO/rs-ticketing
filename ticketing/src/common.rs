@@ -432,7 +432,7 @@ pub trait CommonModule: crate::storage::StorageModule + crate::events::EventsMod
         event: &Event<Self::Api>,
     ) -> ManagedBuffer {
         if event.append_number {
-            sc_format!("{}{}", name, nonce)
+            sc_format!("{} #{}", name, nonce)
         } else {
             sc_format!("{}", name)
         }
