@@ -6,9 +6,9 @@
 
 // Init:                                 1
 // Upgrade:                              1
-// Endpoints:                           35
+// Endpoints:                           36
 // Async Callback:                       1
-// Total number of exported functions:  38
+// Total number of exported functions:  39
 
 #![no_std]
 
@@ -53,6 +53,7 @@ multiversx_sc_wasm_adapter::endpoints! {
         removeTicketStage => remove_ticket_stage
         editTicketType => edit_ticket_type
         editTicketStage => edit_ticket_stage
+        editEvent => edit_event
         addWhitelists => add_to_whitelist
         removeWhitelists => remove_from_whitelist
     )

@@ -29,10 +29,7 @@ pub trait ManageModule:
             "Invalid payment amount. Issue costs exactly 0.05 EGLD"
         );
         let mut map = self.events();
-        require!(
-            !map.contains(event_id),
-            "The ID has been used already"
-        );
+        require!(!map.contains(event_id), "The ID has been used already");
 
         map.insert(event_id.clone());
 
@@ -133,15 +130,10 @@ pub trait ManageModule:
 
     #[only_owner]
     #[endpoint(editTicketType)]
-    fn edit_ticket_type(
-        &self,
-        event_id: &ManagedBuffer,
-        ticket_type_id: &ManagedBuffer,
-        args: TicketTypeArgs<Self::Api>,
-    ) {
+    fn edit_ticket_type(&self, event_id: &ManagedBuffer, args: TicketTypeArgs<Self::Api>) {
         self.is_event_valid(event_id);
 
-        let map = self.is_ticket_type_valid(event_id, ticket_type_id);
+        let map = self.is_ticket_type_valid(event_id, &args.id);
         let mut old_value = map.get();
 
         old_value.base_name = args.base_name;
@@ -160,14 +152,13 @@ pub trait ManageModule:
         &self,
         event_id: &ManagedBuffer,
         ticket_type_id: &ManagedBuffer,
-        ticket_stage_id: &ManagedBuffer,
         args: TicketStageArgs<Self::Api>,
     ) {
         self.is_event_valid(event_id);
         self.is_ticket_type_valid(event_id, ticket_type_id);
         let mut map = self.ticket_stages(event_id, ticket_type_id);
 
-        let option_value = map.get(&ticket_stage_id);
+        let option_value = map.get(&args.id);
 
         if option_value.is_some() {
             let mut old_value = option_value.unwrap();
@@ -180,8 +171,23 @@ pub trait ManageModule:
             old_value.prices = args.prices;
 
             self.emit_ticket_stage(&old_value, event_id);
-            map.insert(ticket_stage_id.clone(), old_value);
+            map.insert(args.id, old_value);
         }
+    }
+
+    #[only_owner]
+    #[endpoint(editEvent)]
+    fn edit_event(&self, event_id: &ManagedBuffer, args: EventArgs) {
+        let event_map = self.is_event_valid(event_id);
+        let mut event = event_map.get();
+        event.max_capacity = args.max_capacity;
+        event.max_per_user = args.max_per_user;
+        event.has_kyc = args.has_kyc;
+        event.refund_policy = args.refund_policy;
+        event.append_number = event.append_number;
+        event.bot_protection = event.bot_protection;
+        self.emit_event(&event);
+        event_map.set(event);
     }
 
     #[only_owner]
