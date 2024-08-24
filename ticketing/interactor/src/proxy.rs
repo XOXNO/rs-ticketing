@@ -587,8 +587,24 @@ where
 
     pub fn edit_ticket_type<
         Arg0: ProxyArg<ManagedBuffer<Env::Api>>,
+        Arg1: ProxyArg<TicketTypeArgs<Env::Api>>,
+    >(
+        self,
+        event_id: Arg0,
+        args: Arg1,
+    ) -> TxTypedCall<Env, From, To, NotPayable, Gas, ()> {
+        self.wrapped_tx
+            .payment(NotPayable)
+            .raw_call("editTicketType")
+            .argument(&event_id)
+            .argument(&args)
+            .original_result()
+    }
+
+    pub fn edit_ticket_stage<
+        Arg0: ProxyArg<ManagedBuffer<Env::Api>>,
         Arg1: ProxyArg<ManagedBuffer<Env::Api>>,
-        Arg2: ProxyArg<TicketTypeArgs<Env::Api>>,
+        Arg2: ProxyArg<TicketStageArgs<Env::Api>>,
     >(
         self,
         event_id: Arg0,
@@ -597,31 +613,25 @@ where
     ) -> TxTypedCall<Env, From, To, NotPayable, Gas, ()> {
         self.wrapped_tx
             .payment(NotPayable)
-            .raw_call("editTicketType")
+            .raw_call("editTicketStage")
             .argument(&event_id)
             .argument(&ticket_type_id)
             .argument(&args)
             .original_result()
     }
 
-    pub fn edit_ticket_stage<
+    pub fn edit_event<
         Arg0: ProxyArg<ManagedBuffer<Env::Api>>,
-        Arg1: ProxyArg<ManagedBuffer<Env::Api>>,
-        Arg2: ProxyArg<ManagedBuffer<Env::Api>>,
-        Arg3: ProxyArg<TicketStageArgs<Env::Api>>,
+        Arg1: ProxyArg<EventArgs>,
     >(
         self,
         event_id: Arg0,
-        ticket_type_id: Arg1,
-        ticket_stage_id: Arg2,
-        args: Arg3,
+        args: Arg1,
     ) -> TxTypedCall<Env, From, To, NotPayable, Gas, ()> {
         self.wrapped_tx
             .payment(NotPayable)
-            .raw_call("editTicketStage")
+            .raw_call("editEvent")
             .argument(&event_id)
-            .argument(&ticket_type_id)
-            .argument(&ticket_stage_id)
             .argument(&args)
             .original_result()
     }
