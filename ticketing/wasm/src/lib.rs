@@ -6,9 +6,9 @@
 
 // Init:                                 1
 // Upgrade:                              1
-// Endpoints:                           36
+// Endpoints:                           38
 // Async Callback:                       1
-// Total number of exported functions:  39
+// Total number of exported functions:  41
 
 #![no_std]
 
@@ -23,6 +23,7 @@ multiversx_sc_wasm_adapter::endpoints! {
         buyTicket => buy
         issueFreeTicket => giveaway
         issuePaidTicket => giveaway_admin
+        tradingControl => trading_control
         setFees => set_cut_fees
         getAllEvents => events
         getEvent => event_by_id
@@ -36,6 +37,7 @@ multiversx_sc_wasm_adapter::endpoints! {
         getNonce => next_nonce
         collections => collections
         getTokenByEventId => token_manager
+        getTransferWallets => transfer_wallets
         getFees => fees
         getIncome => income
         isWhitelisted => is_whitelisted

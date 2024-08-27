@@ -89,6 +89,10 @@ pub trait StorageModule {
     #[view(getTokenByEventId)]
     #[storage_mapper("token")]
     fn token_manager(&self, event_id: &ManagedBuffer) -> NonFungibleTokenMapper<Self::Api>;
+
+    #[view(getTransferWallets)]
+    #[storage_mapper("transferWallets")]
+    fn transfer_wallets(&self, event_id: &ManagedBuffer) -> UnorderedSetMapper<ManagedAddress>;
     // COLLECTION MANAGEMENT //
 
     // TICKETING MANAGEMENT //

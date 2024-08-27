@@ -52,6 +52,74 @@ pub trait SettingsModule:
     }
 
     #[only_owner]
+    #[endpoint(tradingControl)]
+    fn trading_control(&self, event_id: &ManagedBuffer, address: OptionalValue<ManagedAddress>) {
+        let mapper = self.token_manager(event_id);
+        require!(
+            !mapper.is_empty(),
+            "The event {} is not having a token!",
+            event_id
+        );
+
+        let wallet = match address {
+            OptionalValue::Some(add) => add,
+            OptionalValue::None => self.blockchain().get_sc_address(),
+        };
+
+        let token = mapper.get_token_id();
+        let map_wallets = self.transfer_wallets(event_id);
+
+        if !map_wallets.contains(&wallet) {
+            mapper.set_local_roles_for_address(
+                &wallet,
+                &[EsdtLocalRole::Transfer],
+                Some(
+                    self.callbacks()
+                        .transfer_role_callback(event_id, false, &wallet),
+                ),
+            );
+        } else {
+            self.tx()
+                .to(ESDTSystemSCAddress)
+                .typed(ESDTSystemSCProxy)
+                .unset_special_roles(&wallet, &token, [EsdtLocalRole::Transfer].iter().cloned())
+                .callback(
+                    self.callbacks()
+                        .transfer_role_callback(event_id, true, &wallet),
+                )
+                .async_call_and_exit()
+        }
+    }
+
+    #[callback]
+    fn transfer_role_callback(
+        &self,
+        event_id: &ManagedBuffer,
+        status: bool,
+        address: &ManagedAddress,
+        #[call_result] result: ManagedAsyncCallResult<()>,
+    ) {
+        match result {
+            ManagedAsyncCallResult::Ok(()) => {
+                let mut map_wallets = self.transfer_wallets(event_id);
+                let map_event = self.event_by_id(event_id);
+                if status {
+                    map_wallets.swap_remove(address);
+                } else {
+                    map_wallets.insert(address.clone());
+                }
+
+                let event = map_event.update(|event| {
+                    event.transfer_role = map_wallets.len() > 0;
+                    event.clone()
+                });
+                self.emit_event(&event);
+            }
+            ManagedAsyncCallResult::Err(_) => {}
+        }
+    }
+
+    #[only_owner]
     #[endpoint(setFees)]
     fn set_cut_fees(&self, fees: BigUint) {
         require!(

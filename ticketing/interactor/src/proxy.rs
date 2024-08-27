@@ -171,6 +171,22 @@ where
             .original_result()
     }
 
+    pub fn trading_control<
+        Arg0: ProxyArg<ManagedBuffer<Env::Api>>,
+        Arg1: ProxyArg<OptionalValue<ManagedAddress<Env::Api>>>,
+    >(
+        self,
+        event_id: Arg0,
+        address: Arg1,
+    ) -> TxTypedCall<Env, From, To, NotPayable, Gas, ()> {
+        self.wrapped_tx
+            .payment(NotPayable)
+            .raw_call("tradingControl")
+            .argument(&event_id)
+            .argument(&address)
+            .original_result()
+    }
+
     pub fn set_cut_fees<
         Arg0: ProxyArg<BigUint<Env::Api>>,
     >(
@@ -358,6 +374,19 @@ where
         self.wrapped_tx
             .payment(NotPayable)
             .raw_call("getTokenByEventId")
+            .argument(&event_id)
+            .original_result()
+    }
+
+    pub fn transfer_wallets<
+        Arg0: ProxyArg<ManagedBuffer<Env::Api>>,
+    >(
+        self,
+        event_id: Arg0,
+    ) -> TxTypedCall<Env, From, To, NotPayable, Gas, MultiValueEncoded<Env::Api, ManagedAddress<Env::Api>>> {
+        self.wrapped_tx
+            .payment(NotPayable)
+            .raw_call("getTransferWallets")
             .argument(&event_id)
             .original_result()
     }
