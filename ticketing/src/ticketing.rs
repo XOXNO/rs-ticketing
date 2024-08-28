@@ -98,6 +98,7 @@ pub trait Ticketing:
         &self,
         event_id: &ManagedBuffer,
         ticket_type_id: &ManagedBuffer,
+        external_id: &ManagedBuffer,
         users: MultiValueEncoded<MultiValue2<ManagedAddress, usize>>,
     ) -> ManagedVec<EsdtTokenPayment> {
         let mut event = self.does_event_exists(event_id);
@@ -114,7 +115,7 @@ pub trait Ticketing:
                 &to,
                 &BigUint::zero(),
                 &event.token,
-                &ManagedBuffer::new(),
+                external_id,
                 &event,
                 &ticket_type,
             );

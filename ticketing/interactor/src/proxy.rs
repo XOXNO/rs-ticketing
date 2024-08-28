@@ -121,18 +121,21 @@ where
     pub fn giveaway<
         Arg0: ProxyArg<ManagedBuffer<Env::Api>>,
         Arg1: ProxyArg<ManagedBuffer<Env::Api>>,
-        Arg2: ProxyArg<MultiValueEncoded<Env::Api, MultiValue2<ManagedAddress<Env::Api>, usize>>>,
+        Arg2: ProxyArg<ManagedBuffer<Env::Api>>,
+        Arg3: ProxyArg<MultiValueEncoded<Env::Api, MultiValue2<ManagedAddress<Env::Api>, usize>>>,
     >(
         self,
         event_id: Arg0,
         ticket_type_id: Arg1,
-        users: Arg2,
+        external_id: Arg2,
+        users: Arg3,
     ) -> TxTypedCall<Env, From, To, NotPayable, Gas, ManagedVec<Env::Api, EsdtTokenPayment<Env::Api>>> {
         self.wrapped_tx
             .payment(NotPayable)
             .raw_call("issueFreeTicket")
             .argument(&event_id)
             .argument(&ticket_type_id)
+            .argument(&external_id)
             .argument(&users)
             .original_result()
     }
