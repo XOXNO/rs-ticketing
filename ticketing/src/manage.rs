@@ -184,8 +184,8 @@ pub trait ManageModule:
         event.max_per_user = args.max_per_user;
         event.has_kyc = args.has_kyc;
         event.refund_policy = args.refund_policy;
-        event.append_number = event.append_number;
-        event.bot_protection = event.bot_protection;
+        event.append_number = args.append_number;
+        event.bot_protection = args.bot_protection;
         self.emit_event(&event);
         event_map.set(event);
     }
