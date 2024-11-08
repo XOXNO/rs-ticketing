@@ -160,7 +160,7 @@ pub trait CommonModule: crate::storage::StorageModule + crate::events::EventsMod
     ) {
         let sign = signature.into_option();
         let message = data.into_option();
-        if event.has_kyc {
+        if event.has_kyc == true {
             let mut computed = ManagedBuffer::new();
             let msg = &message.unwrap();
             computed.append(caller.as_managed_buffer());
@@ -175,7 +175,7 @@ pub trait CommonModule: crate::storage::StorageModule + crate::events::EventsMod
                 msg,
                 &sign.unwrap(),
             );
-        } else if event.bot_protection {
+        } else if event.bot_protection == true {
             require!(sign.is_some(), "Signature required!");
             require!(message.is_some(), "Data required!");
             let msg = &message.unwrap();
@@ -404,12 +404,12 @@ pub trait CommonModule: crate::storage::StorageModule + crate::events::EventsMod
             let owner_revenue = self.calculate_cut_amount(&payment.amount, &owner_cut);
 
             if platform_cut.gt(&BigUint::zero()) {
-                self.send().direct(
-                    &self.blockchain().get_owner_address(),
-                    &payment.token_identifier,
-                    payment.token_nonce,
-                    &platform_cut,
-                );
+                self.tx()
+                    .to(self.blockchain().get_owner_address())
+                    .typed(manager_proxy::ManagerProxy)
+                    .forward_revenue()
+                    .payment(&payment)
+                    .sync_call();
             }
 
             if owner_revenue.gt(&BigUint::zero()) {
