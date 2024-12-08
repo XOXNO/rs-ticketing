@@ -6,9 +6,9 @@
 
 // Init:                                 1
 // Upgrade:                              1
-// Endpoints:                           38
+// Endpoints:                           39
 // Async Callback:                       1
-// Total number of exported functions:  41
+// Total number of exported functions:  42
 
 #![no_std]
 
@@ -58,6 +58,7 @@ multiversx_sc_wasm_adapter::endpoints! {
         editEvent => edit_event
         addWhitelists => add_to_whitelist
         removeWhitelists => remove_from_whitelist
+        claimIncome => claim_income
     )
 }
 

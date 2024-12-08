@@ -226,4 +226,14 @@ pub trait ManageModule:
             mapper.swap_remove(&wallet);
         }
     }
+
+    #[only_owner]
+    #[endpoint(claimIncome)]
+    fn claim_income(&self, to: &ManagedAddress) {
+        let mut income = self.income();
+        for (_, payment) in income.iter() {
+            self.tx().to(to).payment(payment).transfer();
+        }
+        income.clear();
+    }
 }
